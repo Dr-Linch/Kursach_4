@@ -1,34 +1,31 @@
 from datetime import datetime
-from classes.api_objects import SuperJobAPI
-from classes.api_objects import HeadHunterAPI
-from classes.vacancy import Vacancy
+from src.API_hh import APIHeadHanter
+from src.API_sj import APISuperJob
+from src.Vacancy import Vacancy
 
-# Создаем экземпляры классов для работы с методами API
-hh_api = HeadHunterAPI()
-sj_api = SuperJobAPI()
+# Создание экземпляров классов для работы с платформами по поиску работы
+hh_api = APIHeadHanter()
+sj_api = APISuperJob()
 
 
-def search_by_name(search_query):
+def search_by_name(search):
     """
     Функция для поиска и парсинга данных с сайтов
-    :param search_query: Название вакансии для поиска
-    :return: Возвращаем отсортированные по дате вакансии с сайтов
     """
-    # Передаем поисковое слово для парсинга
-    hh_vacancies = hh_api.get_vacancies(search_query)
+
+    hh_vacancies = hh_api.get_page(search)
     # Создаем экземпляры класса найденных вакансий с HH
     Vacancy.vacancies_from_hh(hh_vacancies)
 
-    # Передаем поисковое слово для парсинга
-    sj_vacancies = sj_api.get_vacancies(search_query)
+    sj_vacancies = sj_api.get_page(search)
     # Создаем экземпляры класса найденных вакансий с SJ
     Vacancy.vacancies_from_sj(sj_vacancies)
 
-    # Получаем массив со всеми отпарсенными данными
+    # Получаем массив со всеми отсортированными данными
     load_vacancies = Vacancy.all_vacancies
     vacancies_data = []
 
-    # Преобразуем найденные экземпляры классов в словарь для хранения и работы с данными
+    # Преобразуем найденные экземпляры классов в словарь
     for vacancy in load_vacancies:
         vacancies_data.append(vacancy.__dict__)
 
@@ -51,8 +48,6 @@ def search_by_name(search_query):
 def format_salary(data):
     """
     Функция для форматирования зарплаты
-    :param data: Данные вакансий с зарплатами
-    :return:
     """
     for vacancy in data:
         if vacancy.get("salary_from") is None:
@@ -63,56 +58,21 @@ def format_salary(data):
 
 def view_vacancies(data):
     """
-    Функция для отображения полученных данных в форматированном виде
-    :param data: Данные вакансий
-    :return:
+    Функция для отображения вакансий
     """
     for vacancy in data:
         format_salary(data)
         print(f"Дата публикации: {vacancy['published']}\n"
               f"Вакансия: {vacancy['vacancy_name']}\n"
               f"Зарплата: {vacancy['salary_from']} - {vacancy['salary_to']}\n"
-              f"Город: {vacancy['city']}\n"
-              f"Обязанности: {vacancy['responsibility']}\n"
               f"Требования: {vacancy['requirement']}\n"
               f"Ссылка на вакансию: {vacancy['url']}\n"
               f"--------------------------------------\n")
 
 
-def value_for_show(data, value):
-    """
-    Функция для отображения определенного количества вакансий
-    :param data: Данные вакансий
-    :param value: Количество вакансий для отображения
-    :return: Возвращает результат с данными
-    """
-    result = []
-    for vacancy in range(0, len(data)):
-        result.append(data[vacancy])
-    return result[-value:]
-
-
-def sorted_by_city(data, city):
-    """
-    Функция фильтрации вакансий в соответствии с заданным городом
-    :param data: Данные вакансий
-    :param city: Город для фильтрации
-    :return: Возвращает результат с вакансиями в заданном городе
-    """
-    sort_result = []
-    for vacancy in data:
-        if city == vacancy['city']:
-            sort_result.append(vacancy)
-    print(f"В городе {city} найдены {len(sort_result)} вакансии")
-
-    return sort_result
-
-
 def sorted_by_salary(data):
     """
     Функция сортировки вакансий по заработной плате от самой наивысшей
-    :param data: Данные вакансий
-    :return: Возвращает отсортированные данные
     """
     format_salary(data)
     sort_vacancies_data = sorted(

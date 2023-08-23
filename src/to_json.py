@@ -1,4 +1,4 @@
-from to_json_abstract import ToJsonAbstract
+from src.to_json_abstract import ToJsonAbstract
 import os
 import json
 

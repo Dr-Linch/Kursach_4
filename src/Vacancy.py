@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 
 
 class Vacancy:
@@ -8,43 +8,37 @@ class Vacancy:
 
     all_vacancies = []
 
-    def __init__(self, name, salary, city, responsibility, requirement, url, published):
-        self.vacancy_name = name
-        self.salary_from = salary
-        self.city = city
-        self.responsibility = responsibility
+    def __init__(self, vacancy_name, salary_from, requirement, url, published):
+        self.vacancy_name = vacancy_name
+        self.salary_from = salary_from
         self.requirement = requirement
         self.url = url
         self.published = published
 
     @classmethod
-    def vacancies_from_hh(cls, data):
-        """Метод для создания экземпляров классов вакансий с данными из HeadHunter"""
+    def vacancies_from_hh(cls, list):
+        """
+        Метод создания экземпляров класса с данными из HeadHunter
+        """
 
-        for vacancy in data:
+        for vacancy in list:
             cls.all_vacancies.append(Vacancy
                                      (vacancy_name=vacancy["name"],
                                       salary_from=vacancy["salary"]["from"],
-                                      salary_to=vacancy["salary"]["to"],
-                                      city=vacancy["area"]["name"],
-                                      responsibility=vacancy["snippet"]["responsibility"],
                                       requirement=vacancy["snippet"]["requirement"],
                                       url=vacancy["alternate_url"],
-                                      published=datetime.fromisoformat(vacancy['published_at']).strftime(
-                                          "%d.%m.%Y %H:%M")))
+                                      published=datetime.datetime.fromisoformat(vacancy['published_at']).strftime(
+                                      "%d.%m.%Y %H:%M")))
 
     @classmethod
-    def vacancies_from_sj(cls, data):
+    def vacancies_from_sj(cls, list):
         """Метод для создания экземпляров классов вакансий с данными из SuperJob"""
 
-        for vacancy in data:
+        for vacancy in list:
             cls.all_vacancies.append(Vacancy
                                      (vacancy_name=vacancy['profession'],
                                       salary_from=vacancy['payment_from'],
-                                      salary_to=vacancy['payment_to'],
-                                      city=vacancy['town']['title'],
-                                      responsibility=vacancy['vacancyRichText'],
                                       requirement=vacancy['candidat'],
                                       url=vacancy['link'],
-                                      published=datetime.fromtimestamp(vacancy['date_published']).strftime(
+                                      published=datetime.datetime.fromtimestamp(vacancy['date_published']).strftime(
                                           "%d.%m.%Y %H:%M")))
